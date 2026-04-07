@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recetario de Masas</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --crema: #f5f0e8;
+    --arena: #e8dcc8;
+    --cafe: #7a5c3a;
+    --cafe-oscuro: #4a3420;
+    --dorado: #c8960c;
+    --text: #2c1f0e;
+    --text-light: #7a6548;
+    --hidra1: #5a7a3a;
+    --hidra2: #3a5a7a;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background-color: var(--crema);
+    color: var(--text);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at 10% 20%, rgba(200,150,12,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 80%, rgba(122,92,58,0.1) 0%, transparent 50%);
+  }
+
+  header {
+    background: var(--cafe-oscuro);
+    color: var(--crema);
+    padding: 2.5rem 2rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      45deg, transparent, transparent 20px,
+      rgba(255,255,255,0.02) 20px, rgba(255,255,255,0.02) 40px
+    );
+  }
+
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    letter-spacing: -0.5px;
+    position: relative;
+  }
+
+  header h1 em { color: var(--dorado); font-style: italic; }
+
+  header p {
+    font-size: 0.95rem;
+    color: rgba(245,240,232,0.65);
+    margin-top: 0.5rem;
+    font-weight: 300;
+    position: relative;
+  }
+
+  .decorline {
+    width: 60px; height: 2px;
+    background: var(--dorado);
+    margin: 1rem auto 0;
+  }
+
+  main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  .controls {
+    background: white;
+    border-radius: 16px;
+    padding: 1.8rem;
+    box-shadow: 0 4px 24px rgba(74,52,32,0.08);
+    display: grid;
+    gap: 1.2rem;
+    margin-bottom: 2rem;
+  }
+
+  label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-light);
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+
+  select, input[type="number"] {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 2px solid var(--arena);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    background: var(--crema);
+    color: var(--text);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%237a5c3a' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
+    cursor: pointer;
+  }
+
+  select:focus, input[type="number"]:focus {
+    outline: none;
+    border-color: var(--cafe);
+    box-shadow: 0 0 0 3px rgba(122,92,58,0.12);
+  }
+
+  .mult-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 1rem;
+  }
+
+  .mult-row > div:first-child { flex: 1; }
+
+  .mult-preview {
+    background: var(--cafe-oscuro);
+    color: var(--crema);
+    border-radius: 10px;
+    padding: 0.85rem 1.2rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    white-space: nowrap;
+    min-width: 90px;
+    text-align: center;
+  }
+
+  .mult-preview span {
+    font-size: 0.7rem;
+    display: block;
+    color: rgba(245,240,232,0.5);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .recipe-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(74,52,32,0.1);
+    animation: fadeUp 0.4s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .recipe-header {
+    background: var(--cafe);
+    color: var(--crema);
+    padding: 1.8rem 2rem;
+    position: relative;
+  }
+
+  .recipe-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+  }
+
+  .recipe-header .meta {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 0.8rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    font-size: 0.82rem;
+    color: rgba(245,240,232,0.7);
+  }
+
+  .badge-mult {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: var(--dorado);
+    color: var(--cafe-oscuro);
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 99px;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .recipe-body { padding: 2rem; }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--cafe-oscuro);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--arena);
+  }
+
+  /* ── Bloques de hidratación ── */
+  .hidra-block {
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 1.8rem;
+    border: 1px solid rgba(0,0,0,0.07);
+  }
+
+  .hidra-block-header {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.9rem 1.2rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+  }
+
+  .hidra-block-header .numero {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .hidra-1 .hidra-block-header { background: var(--hidra1); }
+  .hidra-2 .hidra-block-header { background: var(--hidra2); }
+
+  .hidra-block-body { padding: 1.2rem; background: var(--crema); }
+
+  .hidra-subsection {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin-bottom: 0.7rem;
+    margin-top: 1.2rem;
+    color: var(--text-light);
+  }
+
+  .hidra-subsection:first-child { margin-top: 0; }
+
+  .ingredients-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 0.6rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .simple-ingredients-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 0.6rem;
+    margin-bottom: 2rem;
+  }
+
+  .ingredient-item {
+    background: white;
+    border-radius: 10px;
+    padding: 0.75rem 0.9rem;
+    display: flex;
+    flex-direction: column;
+    border-left: 3px solid var(--dorado);
+    transition: transform 0.15s;
+  }
+
+  .simple-ingredients-grid .ingredient-item { background: var(--crema); }
+  .hidra-1 .ingredient-item { border-left-color: var(--hidra1); }
+  .hidra-2 .ingredient-item { border-left-color: var(--hidra2); }
+
+  .ingredient-item:hover { transform: translateX(3px); }
+
+  .ingredient-qty {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--cafe-oscuro);
+    font-family: 'Playfair Display', serif;
+  }
+
+  .ingredient-qty .unit {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--cafe);
+    font-family: 'DM Sans', sans-serif;
+    margin-left: 2px;
+  }
+
+  .ingredient-name {
+    font-size: 0.82rem;
+    color: var(--text-light);
+    margin-top: 2px;
+  }
+
+  .steps-list {
+    counter-reset: steps;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .steps-list li {
+    counter-increment: steps;
+    display: flex;
+    gap: 0.8rem;
+    align-items: flex-start;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .steps-list li::before {
+    content: counter(steps);
+    background: var(--cafe-oscuro);
+    color: var(--crema);
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.78rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .hidra-1 .steps-list li::before { background: var(--hidra1); }
+  .hidra-2 .steps-list li::before { background: var(--hidra2); }
+
+  .hidra-separator {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0.2rem 0 1.6rem;
+    color: var(--text-light);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .hidra-separator::before,
+  .hidra-separator::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--arena);
+  }
+
+  .nota {
+    background: rgba(200,150,12,0.1);
+    border: 1px solid rgba(200,150,12,0.3);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    margin-top: 1.5rem;
+    font-size: 0.88rem;
+    color: var(--cafe-oscuro);
+    line-height: 1.5;
+  }
+
+  .nota strong { color: var(--dorado); }
+
+  /* ── Bloque de cocción desplegable ── */
+  :root { --coccion: #7a3a5a; }
+
+  .coccion-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    width: 100%;
+    background: var(--coccion);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    padding: 0.9rem 1.2rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    text-align: left;
+    transition: background 0.2s, border-radius 0.25s;
+  }
+
+  .coccion-toggle.open {
+    border-radius: 14px 14px 0 0;
+  }
+
+  .coccion-toggle:hover { background: #6a2a4a; }
+
+  .coccion-toggle .numero {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .coccion-toggle .chevron {
+    margin-left: auto;
+    font-size: 0.8rem;
+    transition: transform 0.25s;
+  }
+
+  .coccion-toggle.open .chevron { transform: rotate(180deg); }
+
+  .coccion-body {
+    background: var(--crema);
+    border: 1px solid rgba(0,0,0,0.07);
+    border-top: none;
+    border-radius: 0 0 14px 14px;
+    padding: 1.2rem;
+    display: none;
+  }
+
+  .coccion-body.open { display: block; }
+
+  .coccion-block .ingredient-item { border-left-color: var(--coccion); }
+  .coccion-block .steps-list li::before { background: var(--coccion); }
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-light);
+  }
+
+  .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; }
+
+  .empty-state p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-style: italic;
+  }
+
+  footer {
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--text-light);
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 500px) {
+    .ingredients-grid,
+    .simple-ingredients-grid { grid-template-columns: 1fr 1fr; }
+    .mult-row { flex-wrap: wrap; }
+    .mult-preview { min-width: 100%; text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Recetario de <em>Masas</em></h1>
+  <p>Escribí la cantidad y la receta se ajusta sola</p>
+  <div class="decorline"></div>
+</header>
+
+<main>
+  <div class="controls">
+    <div>
+      <label>¿Qué receta necesitás?</label>
+      <select id="recipeSelect" onchange="render()">
+        <option value="">— Elegí una receta —</option>
+      </select>
+    </div>
+    <div class="mult-row">
+      <div>
+        <label>Multiplicar por (ej: 1, 2.5, 10)</label>
+        <input type="number" id="multiplier" value="1" min="0.1" step="0.5" oninput="render()">
+      </div>
+      <div class="mult-preview" id="multDisplay">
+        <span>cantidad</span>
+        <span id="multNum">×1</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="output">
+    <div class="empty-state">
+      <div class="icon">🥐</div>
+      <p>Elegí una receta para empezar</p>
+    </div>
+  </div>
+</main>
+
+<footer>Recetario interno · Guardá esta página en tu compu para usarla sin internet</footer>
+
+<script>
+// ================================================================
+//  CÓMO AGREGAR RECETAS
+// ================================================================
+//
+//  RECETA NORMAL (sin doble hidratación):
+//  ─────────────────────────────────────
+//  {
+//    nombre: "Nombre de la receta",
+//    rendimiento: "cuánto rinde",
+//    tiempo: "tiempo total",
+//    dobleHidratacion: false,          ← importante: false
+//    nota: "tip opcional",             ← podés dejar nota: "" si no tenés
+//    ingredientes: [
+//      { nombre: "Harina", cantidad: 500, unidad: "g" },
+//      { nombre: "Agua",   cantidad: 300, unidad: "ml" },
+//      { nombre: "Huevo",  cantidad: 2,   unidad: "" },   ← unidad vacía para cosas que se cuentan
+//    ],
+//    pasos: [
+//      "Paso uno...",
+//      "Paso dos...",
+//    ]
+//  },
+//
+//
+//  RECETA CON DOBLE HIDRATACIÓN:
+//  ─────────────────────────────
+//  {
+//    nombre: "Nombre de la receta",
+//    rendimiento: "cuánto rinde",
+//    tiempo: "tiempo total",
+//    dobleHidratacion: true,           ← importante: true
+//    nota: "tip opcional",
+//    hidratacion1: {
+//      ingredientes: [
+//        { nombre: "Harina", cantidad: 500, unidad: "g" },
+//        ...
+//      ],
+//      pasos: [
+//        "Paso uno...",
+//        ...
+//      ]
+//    },
+//    hidratacion2: {
+//      ingredientes: [ ... ],
+//      pasos: [ ... ]
+//    },
+//    coccion: {                        ← opcional, aparece como desplegable al final
+//      ingredientes: [                 ← podés dejarlo vacío: ingredientes: []
+//        { nombre: "Semillas", cantidad: 50, unidad: "g" },
+//      ],
+//      pasos: [
+//        "Precalentar el horno a 220°C.",
+//        "Hornear 35 minutos con vapor los primeros 15.",
+//      ]
+//    }
+//  },
+//
+// ================================================================
+
+const recetas = [
+
+  // ── MOLDE AVENA ──────────────────────────────────────────────
+  {
+    nombre: "Molde Avena",
+    rendimiento: "1 molde",
+    pesoBollos: "950 g por bollo",
+    rendimientoKilo: "2 panes por kg de harina",
+    tiempo: "",
+    dobleHidratacion: true,
+    nota: "",
+
+    hidratacion1: {
+      ingredientes: [
+        { nombre: "Harina Orgánica 5 Estrellas", cantidad: 850, unidad: "g" },
+        { nombre: "0000 Integral",               cantidad: 150, unidad: "g" },
+        { nombre: "Avena",                       cantidad: 100, unidad: "g" },
+        { nombre: "Agua",                        cantidad: 650, unidad: "g" },
+        { nombre: "Masa madre",                  cantidad: 200, unidad: "g" },
+      ],
+      pasos: [
+        "Pesar las harinas.",
+        "Meterlas en la amasadora junto con la masa madre y el agua pesadas.",
+        "Amasar despacio hasta que tome un poco el agua.",
+        "Subir la velocidad y amasar hasta que se integre toda la harina.",
+        "Sacar y dejar reposar.",
+      ]
+    },
+
+    hidratacion2: {
+      ingredientes: [
+        { nombre: "Leche", cantidad: 100, unidad: "g" },
+        { nombre: "Sal",   cantidad: 20,  unidad: "g" },
+        { nombre: "Miel",  cantidad: 25,  unidad: "g" },
+      ],
+      pasos: [
+        "Meter la masa previamente hidratada y descansada en la amasadora junto con la sal.",
+        "Agregar poca leche y comenzar a amasar despacio.",
+        "Cuando tome un poco la leche, poner a amasar rápido.",
+        "A medida que la masa va absorbiendo la leche, ir agregando de a poco e ir tocando la masa para ver si necesita o no más leche y si el gluten está desarrollado.",
+        "Una vez incorporada toda la leche, agregar la miel y amasar hasta que absorba. Sacar.",
+      ]
+    },
+
+    coccion: {
+      ingredientes: [],
+      pasos: [
+        "Bollar a 950 g y colocar en los moldes.",
+        "Hacer un corte vertical a lo largo del bollo.",
+        "Hornear en horno de piso a 200° el piso y 200° el techo por 55 minutos.",
+      ]
+    }
+  },
+
+  // ── MOLDE INTEGRAL ───────────────────────────────────────────
+  {
+    nombre: "Molde Integral",
+    rendimiento: "1 molde",
+    pesoBollos: "950 g por bollo",
+    rendimientoKilo: "2 panes por kg de harina",
+    tiempo: "",
+    dobleHidratacion: true,
+    nota: "",
+
+    hidratacion1: {
+      ingredientes: [
+        { nombre: "000 Integral",    cantidad: 200, unidad: "g" },
+        { nombre: "0000 Integral",   cantidad: 800, unidad: "g" },
+        { nombre: "Trigo Sarraceno", cantidad: 50,  unidad: "g" },
+        { nombre: "Agua",            cantidad: 650, unidad: "g" },
+        { nombre: "Masa madre",      cantidad: 250, unidad: "g" },
+      ],
+      pasos: [
+        "Pesar las harinas.",
+        "Meterlas en la amasadora junto con la masa madre y el agua pesadas.",
+        "Amasar despacio hasta que tome un poco el agua.",
+        "Subir la velocidad y amasar hasta que se integre toda la harina.",
+        "Sacar y dejar reposar.",
+      ]
+    },
+
+    hidratacion2: {
+      ingredientes: [
+        { nombre: "Leche", cantidad: 100, unidad: "g" },
+        { nombre: "Sal",   cantidad: 20,  unidad: "g" },
+        { nombre: "Miel",  cantidad: 25,  unidad: "g" },
+      ],
+      pasos: [
+        "Meter la masa previamente hidratada y descansada en la amasadora junto con la sal.",
+        "Agregar poca leche y comenzar a amasar despacio.",
+        "Cuando tome un poco la leche, poner a amasar rápido.",
+        "A medida que la masa va absorbiendo la leche, ir agregando de a poco e ir tocando la masa para ver si necesita o no más leche y si el gluten está desarrollado.",
+        "Una vez incorporada toda la leche, agregar la miel y amasar hasta que absorba. Sacar.",
+      ]
+    },
+
+    coccion: {
+      ingredientes: [],
+      pasos: [
+        "Bollar a 950 g y colocar en los moldes.",
+        "Hacer un corte vertical a lo largo del bollo.",
+        "Hornear en horno de piso a 200° el piso y 200° el techo por 55 minutos.",
+      ]
+    }
+  },
+
+  // ── INTEGRAL ─────────────────────────────────────────────────
+  {
+    nombre: "Integral",
+    rendimiento: "1 pieza",
+    pesoBollos: "750 g por bollo",
+    rendimientoKilo: "8 panes por cada 3 kg de harina",
+    tiempo: "",
+    dobleHidratacion: true,
+    nota: "",
+
+    hidratacion1: {
+      ingredientes: [
+        { nombre: "000 Integral",  cantidad: 800, unidad: "g" },
+        { nombre: "0000 Integral", cantidad: 200, unidad: "g" },
+        { nombre: "Agua",          cantidad: 650, unidad: "g" },
+        { nombre: "Masa madre",    cantidad: 250, unidad: "g" },
+      ],
+      pasos: [
+        "Pesar las harinas.",
+        "Meterlas en la amasadora junto con la masa madre y el agua pesadas.",
+        "Amasar despacio hasta que tome un poco el agua.",
+        "Subir la velocidad y amasar hasta que se integre toda la harina.",
+        "Sacar y dejar reposar.",
+      ]
+    },
+
+    hidratacion2: {
+      ingredientes: [
+        { nombre: "Agua", cantidad: 100, unidad: "g" },
+        { nombre: "Sal",  cantidad: 20,  unidad: "g" },
+      ],
+      pasos: [
+        "Meter la masa previamente hidratada y descansada en la amasadora junto con la sal.",
+        "Agregar poca agua y comenzar a amasar despacio.",
+        "Cuando tome un poco el agua, poner a amasar rápido.",
+        "A medida que la masa va absorbiendo el agua, ir agregando de a poco e ir tocando la masa para ver si necesita o no más agua y si el gluten está desarrollado. Sacar.",
+      ]
+    },
+
+    coccion: {
+      ingredientes: [],
+      pasos: [
+        "Bollar a 750 g.",
+        "Hacer dos cortes diagonales sobre el bollo.",
+        "Hornear en horno de piso a 250° el piso y 200° el techo por 20 minutos.",
+        "Cambiar a 250° el techo y 200° el piso por 14 minutos más.",
+      ]
+    }
+  },
+
+  // ── CAMPO ────────────────────────────────────────────────────
+  {
+    nombre: "Campo",
+    rendimiento: "1 pieza",
+    pesoBollos: "750 g por bollo",
+    rendimientoKilo: "8 panes por cada 3 kg de harina",
+    tiempo: "",
+    dobleHidratacion: true,
+    nota: "",
+
+    hidratacion1: {
+      ingredientes: [
+        { nombre: "Harina Orgánica 5 Estrellas", cantidad: 800, unidad: "g" },
+        { nombre: "000 Integral",                cantidad: 100, unidad: "g" },
+        { nombre: "0000 Integral",               cantidad: 100, unidad: "g" },
+        { nombre: "Trigo Sarraceno",             cantidad: 20,  unidad: "g" },
+        { nombre: "Agua",                        cantidad: 650, unidad: "g" },
+        { nombre: "Masa madre",                  cantidad: 200, unidad: "g" },
+      ],
+      pasos: [
+        "Pesar las harinas.",
+        "Meterlas en la amasadora junto con la masa madre y el agua pesadas.",
+        "Amasar despacio hasta que tome un poco el agua.",
+        "Subir la velocidad y amasar hasta que se integre toda la harina.",
+        "Sacar y dejar reposar.",
+      ]
+    },
+
+    hidratacion2: {
+      ingredientes: [
+        { nombre: "Agua",              cantidad: 100, unidad: "g" },
+        { nombre: "Sal",               cantidad: 20,  unidad: "g" },
+        { nombre: "Aceite de girasol", cantidad: 20,  unidad: "g" },
+      ],
+      pasos: [
+        "Meter la masa previamente hidratada y descansada en la amasadora junto con la sal.",
+        "Agregar poca agua y comenzar a amasar despacio.",
+        "Cuando tome un poco el agua, poner a amasar rápido.",
+        "A medida que la masa va absorbiendo el agua, ir agregando de a poco e ir tocando la masa para ver si necesita o no más agua y si el gluten está desarrollado.",
+        "Una vez incorporada toda el agua, agregar el aceite de girasol y amasar hasta que absorba. Sacar.",
+      ]
+    },
+
+    coccion: {
+      ingredientes: [],
+      pasos: [
+        "Bollar a 750 g.",
+        "Hacer un corte vertical en el bollo y luego cortar dentro de ese corte en paralelo a la superficie del pan.",
+        "Hornear en horno de piso a 250° el piso y 200° el techo por 20 minutos.",
+        "Cambiar a 250° el techo y 200° el piso por 14 minutos más.",
+      ]
+    }
+  },
+
+  // ── NUEZ Y MIEL ──────────────────────────────────────────────
+  {
+    nombre: "Nuez y Miel",
+    rendimiento: "1 pieza",
+    pesoBollos: "750 g por bollo",
+    rendimientoKilo: "8 panes por cada 3 kg de harina",
+    tiempo: "",
+    dobleHidratacion: true,
+    nota: "",
+
+    hidratacion1: {
+      ingredientes: [
+        { nombre: "Harina Orgánica 5 Estrellas", cantidad: 750, unidad: "g" },
+        { nombre: "0000 Integral",               cantidad: 150, unidad: "g" },
+        { nombre: "Harina Centeno",              cantidad: 100, unidad: "g" },
+        { nombre: "Agua",                        cantidad: 650, unidad: "g" },
+        { nombre: "Masa madre",                  cantidad: 200, unidad: "g" },
+      ],
+      pasos: [
+        "Pesar las harinas.",
+        "Meterlas en la amasadora junto con la masa madre y el agua pesadas.",
+        "Amasar despacio hasta que tome un poco el agua.",
+        "Subir la velocidad y amasar hasta que se integre toda la harina.",
+        "Sacar y dejar reposar.",
+      ]
+    },
+
+    hidratacion2: {
+      ingredientes: [
+        { nombre: "Agua",              cantidad: 100,      unidad: "g"      },
+        { nombre: "Sal",               cantidad: 20,       unidad: "g"      },
+        { nombre: "Aceite de girasol", cantidad: 20,       unidad: "g"      },
+        { nombre: "Miel",              cantidad: 25,       unidad: "g"      },
+        { nombre: "Nuez",              cantidad: 1,        unidad: "tarrito"},
+      ],
+      pasos: [
+        "Meter la masa previamente hidratada y descansada en la amasadora junto con la sal.",
+        "Agregar poca agua y comenzar a amasar despacio.",
+        "Cuando tome un poco el agua, poner a amasar rápido.",
+        "A medida que la masa va absorbiendo el agua, ir agregando de a poco e ir tocando la masa para ver si necesita o no más agua y si el gluten está desarrollado.",
+        "Una vez incorporada toda el agua, agregar el aceite de girasol y la miel y amasar hasta que absorba.",
+        "Agregar la nuez al final y amasar hasta que se incorpore. Sacar.",
+      ]
+    },
+
+    coccion: {
+      ingredientes: [],
+      pasos: [
+        "Bollar a 750 g.",
+        "Hacer tres cortes diagonales sobre el bollo.",
+        "Hornear en horno de piso a 250° el piso y 200° el techo por 20 minutos.",
+        "Cambiar a 250° el techo y 200° el piso por 14 minutos más.",
+      ]
+    }
+  },
+
+  // ── CIABATTA ─────────────────────────────────────────────────
+  {
+    nombre: "Ciabatta",
+    rendimiento: "1 pieza",
+    pesoBollos: "",
+    rendimientoKilo: "",
+    tiempo: "",
+    dobleHidratacion: true,
+    nota: "",
+
+    hidratacion1: {
+      ingredientes: [
+        { nombre: "Harina Orgánica 5 Estrellas", cantidad: 800, unidad: "g" },
+        { nombre: "000 Integral",                cantidad: 200, unidad: "g" },
+        { nombre: "Agua",                        cantidad: 650, unidad: "g" },
+        { nombre: "Masa madre",                  cantidad: 200, unidad: "g" },
+      ],
+      pasos: [
+        "Pesar las harinas.",
+        "Meterlas en la amasadora junto con la masa madre y el agua pesadas.",
+        "Amasar despacio hasta que tome un poco el agua.",
+        "Subir la velocidad y amasar hasta que se integre toda la harina.",
+        "Sacar y dejar reposar.",
+      ]
+    },
+
+    hidratacion2: {
+      ingredientes: [
+        { nombre: "Agua",            cantidad: 200, unidad: "g" },
+        { nombre: "Sal",             cantidad: 20,  unidad: "g" },
+        { nombre: "Aceite de oliva", cantidad: 20,  unidad: "g" },
+      ],
+      pasos: [
+        "Meter la masa previamente hidratada y descansada en la amasadora junto con la sal.",
+        "Agregar poca agua y comenzar a amasar despacio.",
+        "Cuando tome un poco el agua, poner a amasar rápido.",
+        "A medida que la masa va absorbiendo el agua, ir agregando de a poco e ir tocando la masa para ver si necesita o no más agua y si el gluten está desarrollado.",
+        "Una vez incorporada toda el agua, agregar el aceite de oliva y amasar hasta que absorba. Sacar.",
+      ]
+    },
+
+    coccion: {
+      ingredientes: [],
+      pasos: [
+        "Estirar la masa sobre la mesada.",
+        "Cortar las focaccias, ciabattas largas, cortas y cuadradas según se necesite.",
+        "Hornear a 250° el piso y 250° el techo por 20 minutos aproximadamente.",
+        "Abrir el horno y verificar que estén cocidas y crocantes.",
+        "Si hace falta, agregar entre 2 y 5 minutos más. Sacar.",
+      ]
+    }
+  },
+
+  // ── SEMILLA ──────────────────────────────────────────────────
+  {
+    nombre: "Semilla",
+    rendimiento: "1 pieza",
+    pesoBollos: "750 g por bollo",
+    rendimientoKilo: "8 panes por cada 3 kg de harina",
+    tiempo: "",
+    dobleHidratacion: true,
+    nota: "",
+
+    hidratacion1: {
+      ingredientes: [
+        { nombre: "Harina Orgánica 5 Estrellas", cantidad: 650, unidad: "g" },
+        { nombre: "000 Integral",                cantidad: 350, unidad: "g" },
+        { nombre: "Agua",                        cantidad: 650, unidad: "g" },
+        { nombre: "Masa madre",                  cantidad: 200, unidad: "g" },
+      ],
+      pasos: [
+        "Pesar las harinas.",
+        "Meterlas en la amasadora junto con la masa madre y el agua pesadas.",
+        "Amasar despacio hasta que tome un poco el agua.",
+        "Subir la velocidad y amasar hasta que se integre toda la harina.",
+        "Sacar y dejar reposar.",
+      ]
+    },
+
+    hidratacion2: {
+      ingredientes: [
+        { nombre: "Agua",              cantidad: 100, unidad: "g" },
+        { nombre: "Sal",               cantidad: 20,  unidad: "g" },
+        { nombre: "Semillas de chía",  cantidad: 50,  unidad: "g" },
+        { nombre: "Semillas de lino",  cantidad: 50,  unidad: "g" },
+      ],
+      pasos: [
+        "En un perol, mezclar el agua con las semillas de chía y lino hasta que absorban todo el líquido.",
+        "Meter la masa previamente hidratada y descansada en la amasadora junto con la sal y la mezcla de semillas completa.",
+        "Amasar lento hasta incorporar.",
+        "Luego amasar rápido hasta desarrollar el gluten. Sacar.",
+      ]
+    },
+
+    coccion: {
+      ingredientes: [],
+      pasos: [
+        "Bollar a 750 g.",
+        "Hacer dos cortes diagonales sobre el bollo.",
+        "Hornear en horno de piso a 250° el piso y 200° el techo por 20 minutos.",
+        "Cambiar a 250° el techo y 200° el piso por 14 minutos más.",
+      ]
+    }
+  },
+
+  // ── CENTENO ──────────────────────────────────────────────────
+  {
+    nombre: "Centeno",
+    rendimiento: "1 pieza",
+    pesoBollos: "950 g por bollo",
+    rendimientoKilo: "2 panes por kg de harina",
+    tiempo: "",
+    dobleHidratacion: true,
+    nota: "",
+
+    hidratacion1: {
+      ingredientes: [
+        { nombre: "Harina Orgánica 5 Estrellas", cantidad: 400, unidad: "g" },
+        { nombre: "000 Integral",                cantidad: 350, unidad: "g" },
+        { nombre: "Centeno",                     cantidad: 250, unidad: "g" },
+        { nombre: "Agua",                        cantidad: 650, unidad: "g" },
+        { nombre: "Masa madre",                  cantidad: 200, unidad: "g" },
+      ],
+      pasos: [
+        "Pesar las harinas.",
+        "Meterlas en la amasadora junto con la masa madre y el agua pesadas.",
+        "Amasar despacio hasta que tome un poco el agua.",
+        "Subir la velocidad y amasar hasta que se integre toda la harina.",
+        "Sacar y dejar reposar.",
+      ]
+    },
+
+    hidratacion2: {
+      ingredientes: [
+        { nombre: "Agua", cantidad: 100, unidad: "g" },
+        { nombre: "Sal",  cantidad: 20,  unidad: "g" },
+      ],
+      pasos: [
+        "Meter la masa previamente hidratada y descansada en la amasadora junto con la sal.",
+        "Agregar poca agua y comenzar a amasar despacio.",
+        "Cuando tome un poco el agua, poner a amasar rápido.",
+        "A medida que la masa va absorbiendo el agua, ir agregando de a poco e ir tocando la masa para ver si necesita o no más agua y si el gluten está desarrollado.",
+      ]
+    },
+
+    coccion: {
+      ingredientes: [],
+      pasos: [
+        "Bollar a 950 g y colocar en los moldes.",
+        "No lleva corte.",
+        "Hornear en horno de piso a 200° el piso y 200° el techo por 55 minutos.",
+      ]
+    }
+  },
+
+];
+
+// ================================================================
+// Motor de renderizado — no hace falta tocar nada de acá abajo
+// ================================================================
+
+const select = document.getElementById('recipeSelect');
+recetas.forEach((r, i) => {
+  const opt = document.createElement('option');
+  opt.value = i;
+  opt.textContent = r.nombre + (r.dobleHidratacion ? '  · doble hidratación' : '');
+  select.appendChild(opt);
+});
+
+function fmt(n) {
+  if (n === 0) return "0";
+  const r = Math.round(n * 10) / 10;
+  return r % 1 === 0 ? r.toString() : r.toFixed(1);
+}
+
+function ingCard(ing, mult) {
+  const qty = fmt(ing.cantidad * mult);
+  return `
+    <div class="ingredient-item">
+      <div class="ingredient-qty">${qty}<span class="unit">${ing.unidad}</span></div>
+      <div class="ingredient-name">${ing.nombre}</div>
+    </div>`;
+}
+
+function stepsHTML(pasos) {
+  return `<ol class="steps-list">${pasos.map(p => `<li>${p}</li>`).join('')}</ol>`;
+}
+
+function coccionHTML(r, mult) {
+  if (!r.coccion) return '';
+  const tieneIngs = r.coccion.ingredientes && r.coccion.ingredientes.length > 0;
+  const tienePasos = r.coccion.pasos && r.coccion.pasos.length > 0;
+  if (!tieneIngs && !tienePasos) return '';
+
+  const ingsHTML = tieneIngs ? `
+    <div class="hidra-subsection">Ingredientes</div>
+    <div class="ingredients-grid coccion-block">
+      ${r.coccion.ingredientes.map(i => ingCard(i, mult)).join('')}
+    </div>` : '';
+
+  const pasosH = tienePasos ? `
+    <div class="hidra-subsection">Pasos</div>
+    <div class="coccion-block">${stepsHTML(r.coccion.pasos)}</div>` : '';
+
+  return `
+    <div class="hidra-separator">Cocción</div>
+    <button class="coccion-toggle" onclick="this.classList.toggle('open'); this.nextElementSibling.classList.toggle('open')">
+      <div class="numero">🔥</div>
+      Cocción
+      <span class="chevron">▼</span>
+    </button>
+    <div class="coccion-body">
+      ${ingsHTML}
+      ${pasosH}
+    </div>`;
+}
+
+function renderSimple(r, mult) {
+  return `
+    <div class="recipe-body">
+      <h3 class="section-title">Ingredientes</h3>
+      <div class="simple-ingredients-grid">
+        ${r.ingredientes.map(i => ingCard(i, mult)).join('')}
+      </div>
+      <h3 class="section-title">Preparación</h3>
+      ${stepsHTML(r.pasos)}
+      ${coccionHTML(r, mult)}
+      ${r.nota ? `<div class="nota"><strong>💡 Tip:</strong> ${r.nota}</div>` : ''}
+    </div>`;
+}
+
+function renderDoble(r, mult) {
+  return `
+    <div class="recipe-body">
+
+      <div class="hidra-block hidra-1">
+        <div class="hidra-block-header">
+          <div class="numero">1</div>
+          Primera Hidratación
+        </div>
+        <div class="hidra-block-body">
+          <div class="hidra-subsection">Ingredientes</div>
+          <div class="ingredients-grid">
+            ${r.hidratacion1.ingredientes.map(i => ingCard(i, mult)).join('')}
+          </div>
+          <div class="hidra-subsection">Preparación</div>
+          ${stepsHTML(r.hidratacion1.pasos)}
+        </div>
+      </div>
+
+      ${(r.hidratacion2.ingredientes.length > 0 || r.hidratacion2.pasos.length > 0) ? `
+      <div class="hidra-separator">Segunda etapa</div>
+      <div class="hidra-block hidra-2">
+        <div class="hidra-block-header">
+          <div class="numero">2</div>
+          Segunda Hidratación
+        </div>
+        <div class="hidra-block-body">
+          ${r.hidratacion2.ingredientes.length > 0 ? `
+          <div class="hidra-subsection">Ingredientes</div>
+          <div class="ingredients-grid">
+            ${r.hidratacion2.ingredientes.map(i => ingCard(i, mult)).join('')}
+          </div>` : ''}
+          ${r.hidratacion2.pasos.length > 0 ? `
+          <div class="hidra-subsection">Preparación</div>
+          ${stepsHTML(r.hidratacion2.pasos)}` : ''}
+        </div>
+      </div>` : `
+      <div class="nota" style="background:rgba(58,90,122,0.08);border-color:rgba(58,90,122,0.25);">
+        <strong style="color:var(--hidra2);">💧 Segunda hidratación:</strong> Próximamente — los pasos e ingredientes de esta etapa se van a agregar pronto.
+      </div>`}
+
+      ${r.nota ? `<div class="nota"><strong>💡 Tip:</strong> ${r.nota}</div>` : ''}
+      ${coccionHTML(r, mult)}
+    </div>`;
+}
+
+function render() {
+  const idx = select.value;
+  const mult = parseFloat(document.getElementById('multiplier').value) || 1;
+  document.getElementById('multNum').textContent = `×${fmt(mult)}`;
+
+  if (idx === "") {
+    document.getElementById('output').innerHTML = `
+      <div class="empty-state">
+        <div class="icon">🥐</div>
+        <p>Elegí una receta para empezar</p>
+      </div>`;
+    return;
+  }
+
+  const r = recetas[idx];
+  const multBadge = mult !== 1 ? `<div class="badge-mult">×${fmt(mult)}</div>` : '';
+  const cuerpo = r.dobleHidratacion ? renderDoble(r, mult) : renderSimple(r, mult);
+
+  document.getElementById('output').innerHTML = `
+    <div class="recipe-card">
+      <div class="recipe-header">
+        ${multBadge}
+        <h2>${r.nombre}</h2>
+        <div class="meta">
+          <span class="meta-item">🕒 ${r.tiempo}</span>
+          <span class="meta-item">🍞 Rinde: ${mult === 1 ? r.rendimiento : `×${fmt(mult)} la receta original`}</span>
+          ${r.pesoBollos ? `<span class="meta-item">⚖️ ${r.pesoBollos}</span>` : ''}
+          ${r.rendimientoKilo ? `<span class="meta-item">📊 ${r.rendimientoKilo}</span>` : ''}
+          ${r.dobleHidratacion ? '<span class="meta-item">💧 Doble hidratación</span>' : ''}
+        </div>
+      </div>
+      ${cuerpo}
+    </div>`;
+}
+
+render();
+</script>
+</body>
+</html>
