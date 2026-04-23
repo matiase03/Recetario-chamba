@@ -1,7 +1,7 @@
-const CACHE_NAME = 'recetario-v2';
+const CACHE_NAME = 'recetario-v3';
 const FILES = [
-  '/Prueba-nueva-chamba/',
-  '/Prueba-nueva-chamba/index.html'
+  '/Recetario-chamba/',
+  '/Recetario-chamba/index.html'
 ];
 
 self.addEventListener('install', e => {

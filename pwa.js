@@ -1,13 +1,9 @@
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
-      .register('/Prueba-nueva-chamba/sw.js')
-      .then(reg => {
-        console.log('SW registrado:', reg.scope);
-      })
-      .catch(err => {
-        console.warn('SW no pudo registrarse:', err);
-      });
+      .register('/Recetario-chamba/sw.js')
+      .then(reg => console.log('SW registrado:', reg.scope))
+      .catch(err => console.warn('SW no pudo registrarse:', err));
   });
 }
 
@@ -39,7 +35,6 @@ function mostrarBotonInstalar() {
     cursor: pointer;
     box-shadow: 0 4px 16px rgba(74,52,32,0.35);
     z-index: 9999;
-    transition: opacity 0.3s;
   `;
   btn.addEventListener('click', async () => {
     if (!deferredPrompt) return;
