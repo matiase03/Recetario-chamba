@@ -14,6 +14,7 @@ const SYNC_KEYS = [
   'local_notas',
   'pedidos_mayoristas',
   'stock_panes',
+  'empaquetados',
 ];
 
 // ── Subir un valor a Supabase ────────────────────────────────
@@ -57,6 +58,11 @@ function supaIniciarRealtime() {
 
         // Refrescar la UI según qué dato cambió
         const clave = row.clave;
+
+        if (clave === 'empaquetados') {
+          const el = document.getElementById('tab-empaquetados');
+          if (el && el.style.display !== 'none') renderEmpaquetados();
+        }
 
         if (clave === 'stock_panes') {
           const home = document.getElementById('tab-inicio');

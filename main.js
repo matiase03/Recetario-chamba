@@ -1,5 +1,5 @@
 // ── Navegación con animación ──
-const TABS = ['inicio','recetas','calculadora','pedidos','mensaje','admin'];
+const TABS = ['inicio','recetas','calculadora','pedidos','mensaje','admin','empaquetados','carga-emp'];
 
 function cambiarModo(modo) {
   TABS.forEach(tab => {
@@ -8,7 +8,7 @@ function cambiarModo(modo) {
     if (tab === modo) {
       el.style.display = 'block';
       el.classList.remove('tab-fade-in');
-      void el.offsetWidth; // forzar reflow para reiniciar la animación
+      void el.offsetWidth;
       el.classList.add('tab-fade-in');
     } else {
       el.style.display = 'none';
@@ -17,8 +17,10 @@ function cambiarModo(modo) {
   document.querySelectorAll('.nav-btn').forEach(b =>
     b.classList.toggle('active', b.dataset.tab === modo)
   );
-  if (modo === 'pedidos') mostrarLocal(document.getElementById('localSelect').value);
-  if (modo === 'inicio')  renderInicio();
+  if (modo === 'pedidos')      mostrarLocal(document.getElementById('localSelect').value);
+  if (modo === 'inicio')       renderInicio();
+  if (modo === 'empaquetados') renderEmpaquetados();
+  if (modo === 'carga-emp')    renderCargaEmp();
 }
 
 // ── Helpers de cálculo ────────────────────────────────────────

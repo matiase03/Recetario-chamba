@@ -341,6 +341,9 @@
     </div>
   </div>
 
+  <div id="tab-empaquetados" style="display:none"></div>
+  <div id="tab-carga-emp" style="display:none"></div>
+
 </main>
 
 <div class="saved-toast" id="saved-toast">✓ Guardado</div>
@@ -371,6 +374,14 @@
     <span class="nav-icon">✏️</span>
     <span class="nav-label">Editor</span>
   </button>
+  <button class="nav-btn" onclick="cambiarModo('empaquetados')" data-tab="empaquetados">
+    <span class="nav-icon">📦</span>
+    <span class="nav-label">Empaq.</span>
+  </button>
+  <button class="nav-btn" onclick="cambiarModo('carga-emp')" data-tab="carga-emp">
+    <span class="nav-icon">📝</span>
+    <span class="nav-label">Carga</span>
+  </button>
 </nav>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -383,6 +394,7 @@
 <script src="pedidos.js"></script>
 <script src="mensaje.js"></script>
 <script src="admin.js"></script>
+<script src="empaquetados.js"></script>
 <script src="pwa.js"></script>
 <script src="main.js"></script>
 </body>

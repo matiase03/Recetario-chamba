@@ -1674,3 +1674,66 @@ body.dark .inicio-acceso:active { background: #2e2418; }
 body.dark .stock-btn { background: #2e2418; border-color: var(--arena); }
 body.dark .stock-btn:active { background: #3a2c1e; }
 body.dark .stock-input { background: #2e2418; color: var(--text); border-color: var(--arena); }
+
+/* ══════════════════════════════════════════
+   EMPAQUETADOS
+══════════════════════════════════════════ */
+.emp-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.emp-tabla thead tr {
+  border-bottom: 2px solid var(--arena);
+}
+
+.emp-th-prod {
+  text-align: left;
+  padding: 0.5rem 0.8rem 0.5rem 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-light);
+  white-space: nowrap;
+}
+
+.emp-th-dia {
+  text-align: center;
+  padding: 0.5rem 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-light);
+}
+
+.emp-prod {
+  padding: 0.55rem 0.8rem 0.55rem 0;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  border-bottom: 1px solid var(--arena);
+}
+
+.emp-celda {
+  text-align: center;
+  padding: 0.55rem 0.4rem;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--cafe-oscuro);
+  border-bottom: 1px solid var(--arena);
+}
+
+.emp-celda.emp-vacia {
+  color: var(--text-light);
+  font-size: 0.85rem;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+}
+
+.emp-tabla tbody tr:last-child td { border-bottom: none; }
+.emp-tabla tbody tr:nth-child(even) td { background: rgba(232,220,200,0.25); }
+body.dark .emp-tabla tbody tr:nth-child(even) td { background: rgba(255,255,255,0.04); }
