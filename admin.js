@@ -1,23 +1,61 @@
+// ================================================================
+// AUTENTICACIÓN — hash en Supabase, nunca en texto plano
+// ================================================================
+
 async function hashStr(str) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
 }
 
-const ADMIN_HASH = 'a3f2e1b4c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2';
+// Obtener el hash guardado en Supabase (tabla config, clave admin_hash)
+async function getAdminHash() {
+  try {
+    const { data, error } = await supa
+      .from('config')
+      .select('valor')
+      .eq('clave', 'admin_hash')
+      .single();
+    if (error || !data) return null;
+    return data.valor;
+  } catch { return null; }
+}
+
+// Guardar un nuevo hash en Supabase
+async function setAdminHash(nuevoHash) {
+  await supa.from('config').upsert({ clave: 'admin_hash', valor: nuevoHash });
+}
 
 async function adminLogin() {
   const user = document.getElementById('admin-user').value.trim();
   const pass = document.getElementById('admin-pass').value;
-  const userOk = user === 'matiase03';
-  const passOk = pass === '15462Asd';
-  if (userOk && passOk) {
+  const errEl = document.getElementById('admin-error');
+  errEl.style.display = 'none';
+
+  if (user !== 'matiase03') {
+    errEl.textContent = 'Usuario o contraseña incorrectos';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const hashIngresado = await hashStr(pass);
+  const hashGuardado  = await getAdminHash();
+
+  // Si no hay hash en Supabase todavía, usar el hash por defecto de la contraseña inicial
+  const HASH_DEFAULT = '034f4c4715320a20515a69718687985a808fcee8440aa759902f4e667f47d727';
+  const hashValido   = hashGuardado || HASH_DEFAULT;
+
+  if (hashIngresado === hashValido) {
+    // Si no había hash en Supabase, lo subimos ahora
+    if (!hashGuardado) await setAdminHash(HASH_DEFAULT);
+
     document.getElementById('admin-login-box').style.display = 'none';
     document.getElementById('admin-panel-box').style.display = 'block';
     sessionStorage.setItem('admin_logged', '1');
     renderAdminRecetas();
     renderAdminPedidos();
   } else {
-    document.getElementById('admin-error').style.display = 'block';
+    errEl.textContent = 'Usuario o contraseña incorrectos';
+    errEl.style.display = 'block';
   }
 }
 
@@ -37,6 +75,55 @@ function adminLogout() {
     document.getElementById('admin-panel-box').style.display = 'block';
   }
 })();
+
+// ── Cambiar contraseña ────────────────────────────────────────
+function mostrarCambioPass() {
+  const panel = document.getElementById('admin-cambio-pass');
+  if (panel) panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+
+async function cambiarPassword() {
+  const actual   = document.getElementById('pass-actual').value;
+  const nueva    = document.getElementById('pass-nueva').value;
+  const confirma = document.getElementById('pass-confirma').value;
+  const errEl    = document.getElementById('pass-error');
+  errEl.style.display = 'none';
+
+  if (!actual || !nueva || !confirma) {
+    errEl.textContent = 'Completá todos los campos';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (nueva !== confirma) {
+    errEl.textContent = 'La nueva contraseña no coincide';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (nueva.length < 6) {
+    errEl.textContent = 'La contraseña debe tener al menos 6 caracteres';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const hashActual   = await hashStr(actual);
+  const hashGuardado = await getAdminHash();
+  const HASH_DEFAULT = '034f4c4715320a20515a69718687985a808fcee8440aa759902f4e667f47d727';
+
+  if (hashActual !== (hashGuardado || HASH_DEFAULT)) {
+    errEl.textContent = 'La contraseña actual es incorrecta';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const hashNueva = await hashStr(nueva);
+  await setAdminHash(hashNueva);
+
+  document.getElementById('pass-actual').value   = '';
+  document.getElementById('pass-nueva').value    = '';
+  document.getElementById('pass-confirma').value = '';
+  document.getElementById('admin-cambio-pass').style.display = 'none';
+  showToast('🔐 Contraseña actualizada');
+}
 
 function adminTab(tab, btn) {
   document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));

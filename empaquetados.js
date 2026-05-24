@@ -18,9 +18,8 @@ const PRODUCTOS_EMP = [
 
 const EMP_KEY = 'empaquetados';
 
-// Credenciales para carga (mismo hash que el editor)
+// Credenciales — verificadas contra Supabase igual que el editor
 const EMP_USER = 'matiase03';
-const EMP_PASS = '15462Asd';
 
 // ── Obtener/guardar datos ─────────────────────────────────────
 function getEmpaquetados() {
@@ -111,14 +110,29 @@ function renderCargaEmp() {
   _renderFormularioCarga(el);
 }
 
-function empLogin() {
-  const user = document.getElementById('emp-user').value.trim();
-  const pass = document.getElementById('emp-pass').value;
-  if (user === EMP_USER && pass === EMP_PASS) {
+async function empLogin() {
+  const user  = document.getElementById('emp-user').value.trim();
+  const pass  = document.getElementById('emp-pass').value;
+  const errEl = document.getElementById('emp-error');
+  errEl.style.display = 'none';
+
+  if (user !== EMP_USER) {
+    errEl.textContent = 'Usuario o contraseña incorrectos';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  // Reutiliza hashStr y getAdminHash definidos en admin.js
+  const hashIngresado = await hashStr(pass);
+  const hashGuardado  = await getAdminHash();
+  const HASH_DEFAULT  = '034f4c4715320a20515a69718687985a808fcee8440aa759902f4e667f47d727';
+
+  if (hashIngresado === (hashGuardado || HASH_DEFAULT)) {
     _empLogueado = true;
     renderCargaEmp();
   } else {
-    document.getElementById('emp-error').style.display = 'block';
+    errEl.textContent = 'Usuario o contraseña incorrectos';
+    errEl.style.display = 'block';
   }
 }
 
