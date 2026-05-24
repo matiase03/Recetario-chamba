@@ -1,3 +1,46 @@
+function tangzhongHTML(r, mult) {
+  if (!r.tangzhong) return '';
+
+  // Calcular cantidades según el multiplicador
+  // Harina total de la receta base = suma de ingredientes con unidad "g" que contengan "harina"
+  // Más simple: usamos pctHarina × harinaBase donde harinaBase se infiere de ingredientes
+  // La harina base para ×1 es siempre 1000g en Viena, pero lo calculamos dinámicamente
+  const harinaIng = r.ingredientes.find(i =>
+    i.nombre.toLowerCase().includes('harina') && i.unidad === 'g'
+  );
+  // harina total = la que va en masa + la del tangzhong (5% del total)
+  // Si en masa va 950g y tangzhong es 5%, entonces total = 950 / 0.95 = 1000g
+  const harinaEnMasa = harinaIng ? harinaIng.cantidad : 950;
+  const pct          = r.tangzhong.pctHarina;           // 0.05
+  const harinaTotal  = Math.round(harinaEnMasa / (1 - pct)); // 950 / 0.95 = 1000
+  const hTang        = Math.round(harinaTotal * pct * mult);  // 50 × mult
+  const lTang        = hTang * r.tangzhong.multiplicadorLeche; // 250 × mult
+
+  return `
+    <div class="hidra-separator">Tangzhong — preparar antes</div>
+    <button class="coccion-toggle" style="background:var(--cafe)"
+      onclick="this.classList.toggle('open'); this.nextElementSibling.classList.toggle('open')">
+      <div class="numero">🌡️</div>
+      Tangzhong
+      <span class="chevron">▼</span>
+    </button>
+    <div class="coccion-body">
+      <div class="hidra-subsection">Ingredientes (se descuentan de la receta)</div>
+      <div class="ingredients-grid" style="margin-bottom:0.8rem">
+        <div class="ingredient-item">
+          <div class="ingredient-qty">${hTang}<span class="unit">g</span></div>
+          <div class="ingredient-name">Harina 0000</div>
+        </div>
+        <div class="ingredient-item">
+          <div class="ingredient-qty">${lTang}<span class="unit">g</span></div>
+          <div class="ingredient-name">Leche</div>
+        </div>
+      </div>
+      <div class="hidra-subsection">Preparación</div>
+      <div class="coccion-block">${stepsHTML(r.tangzhong.pasos)}</div>
+    </div>`;
+}
+
 function ingCard(ing, mult) {
   const qty = fmt(ing.cantidad * mult);
   return `
@@ -43,6 +86,7 @@ function coccionHTML(r, mult) {
 function renderSimple(r, mult) {
   return `
     <div class="recipe-body">
+      ${tangzhongHTML(r, mult)}
       <h3 class="section-title">Ingredientes</h3>
       <div class="simple-ingredients-grid">
         ${r.ingredientes.map(i => ingCard(i, mult)).join('')}

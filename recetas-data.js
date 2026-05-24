@@ -644,20 +644,40 @@ const recetas = [
     tiempo: "",
     dobleHidratacion: false,
     nota: "⚠️ PANERA: separar parte de la masa y agregar 50 g de orégano por kg de masa para los que lo requieran. — ⚠️ HAMBURGUESA: tirar sésamo blanco por encima antes de cocinar.",
+
+    // Tangzhong: usa 5% de la harina total y 5× esa cantidad en leche.
+    // Los ingredientes de la receta ya están descontados.
+    tangzhong: {
+      pctHarina: 0.05,   // 5% de la harina total
+      multiplicadorLeche: 5,
+      // harnaBase y lecheBase se calculan en el render según el multiplicador
+      pasos: [
+        "Pesar el 5% de la harina total y 5 veces esa cantidad en leche.",
+        "Mezclar en una cacerola y cocinar a fuego lento, revolviendo constantemente, hasta que espese (aprox. 65°C).",
+        "Retirar del fuego, cubrir con film en contacto y dejar enfriar completamente antes de usar.",
+      ]
+    },
+
+    // Ingredientes BASE para ×1 (harina total = 1000g)
+    // Tangzhong usa 50g harina + 250g leche
+    // Receta lleva: 950g harina + 230g leche + 210g agua (230 - (250-230) = 210)
     ingredientes: [
-      { nombre: "Harina 0000", cantidad: 1000, unidad: "g" },
-      { nombre: "Azúcar",      cantidad: 80,   unidad: "g" },
-      { nombre: "Huevos",      cantidad: 2,    unidad: ""  },
-      { nombre: "Sal",         cantidad: 30,   unidad: "g" },
-      { nombre: "Levadura",    cantidad: 40,   unidad: "g" },
-      { nombre: "Manterina",   cantidad: 100,  unidad: "g" },
-      { nombre: "Propionato",  cantidad: 4,    unidad: "g" },
-      { nombre: "Agua",        cantidad: 230,  unidad: "g" },
-      { nombre: "Leche",       cantidad: 230,  unidad: "g" },
+      { nombre: "Harina 0000",  cantidad: 950,  unidad: "g",
+        nota: "La receta lleva 1000 g total: 50 g van al tangzhong" },
+      { nombre: "Azúcar",       cantidad: 80,   unidad: "g" },
+      { nombre: "Huevos",       cantidad: 2,    unidad: ""  },
+      { nombre: "Sal",          cantidad: 30,   unidad: "g" },
+      { nombre: "Levadura",     cantidad: 40,   unidad: "g" },
+      { nombre: "Manterina",    cantidad: 100,  unidad: "g" },
+      { nombre: "Propionato",   cantidad: 4,    unidad: "g" },
+      { nombre: "Agua",         cantidad: 210,  unidad: "g",
+        nota: "230 g originales − 20 g (excedente de leche del tangzhong)" },
+      { nombre: "Tangzhong",    cantidad: 1,    unidad: "porción completa" },
     ],
     pasos: [
-      "Pesar todos los ingredientes.",
-      "Poner en la amasadora todo excepto la manterina.",
+      "Preparar el tangzhong con anticipación y dejarlo enfriar.",
+      "Pesar todos los ingredientes de la masa.",
+      "Poner en la amasadora todo excepto la manterina (incluir el tangzhong frío).",
       "Integrar en velocidad mínima.",
       "Agregar la manterina y amasar a velocidad rápida hasta obtener una masa lisa y con gluten desarrollado.",
     ],
