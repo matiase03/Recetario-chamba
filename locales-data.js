@@ -1,4 +1,4 @@
-const locales = [
+let locales = [
   {
     id: "bv",
     nombre: "Local BV",

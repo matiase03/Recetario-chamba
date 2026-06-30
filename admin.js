@@ -406,6 +406,83 @@ function guardarNuevaReceta() {
   showToast('✓ Receta guardada');
 }
 
+// ── Locales extra (agregados desde el editor) ─────────────────
+function getLocalesExtra() {
+  try { return JSON.parse(localStorage.getItem('locales_extra') || '[]'); } catch { return []; }
+}
+
+function saveLocalesExtra(arr) {
+  localStorage.setItem('locales_extra', JSON.stringify(arr));
+  if (typeof supaSync === 'function') supaSync('locales_extra', arr);
+}
+
+function loadLocalesExtra() {
+  const extras = getLocalesExtra();
+  // Quitar los que ya estaban (por si se llama dos veces)
+  locales = locales.filter(l => !l._extra);
+  // Agregar los extras
+  extras.forEach(l => {
+    if (!locales.find(x => x.id === l.id)) locales.push({ ...l, _extra: true });
+  });
+}
+
+function agregarLocal() {
+  const nombre = document.getElementById('nuevo-local-nombre').value.trim();
+  if (!nombre) { showToast('⚠️ Ingresá un nombre'); return; }
+
+  // Generar id único a partir del nombre
+  const id = 'local_' + nombre.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '')
+    + '_' + Date.now().toString(36);
+
+  if (locales.find(l => l.nombre.toLowerCase() === nombre.toLowerCase())) {
+    showToast('⚠️ Ya existe un local con ese nombre');
+    return;
+  }
+
+  const nuevoLocal = { id, nombre, nota: '', panes: [], _extra: true };
+  locales.push(nuevoLocal);
+
+  const extras = getLocalesExtra();
+  extras.push(nuevoLocal);
+  saveLocalesExtra(extras);
+
+  document.getElementById('nuevo-local-nombre').value = '';
+  renderAdminPedidos();
+
+  // Abrir el card del nuevo local
+  setTimeout(() => {
+    const cards = document.querySelectorAll('#admin-pedidos-list .admin-card');
+    const ultimo = cards[cards.length - 1];
+    if (ultimo) {
+      ultimo.querySelector('.admin-card-title').classList.add('open');
+      ultimo.querySelector('.admin-card-body').classList.add('open');
+    }
+  }, 50);
+
+  showToast('✓ Local agregado');
+}
+
+function eliminarLocal(localId) {
+  const local = locales.find(l => l.id === localId);
+  if (!local) return;
+  if (!confirm(`¿Eliminar el local "${local.nombre}"? Se perderán todos sus panes configurados.`)) return;
+
+  locales = locales.filter(l => l.id !== localId);
+
+  const extras = getLocalesExtra().filter(l => l.id !== localId);
+  saveLocalesExtra(extras);
+
+  // Limpiar también sus overrides
+  const overrides = getPedidosOverride();
+  delete overrides[localId];
+  savePedidosOverride(overrides);
+
+  renderAdminPedidos();
+  showToast('🗑 Local eliminado');
+}
+
 // ── Pedidos por local en editor ──
 function getPedidosOverride() {
   try { return JSON.parse(localStorage.getItem('pedidos_override') || '{}'); } catch { return {}; }
@@ -415,6 +492,9 @@ function savePedidosOverride(obj) {
 }
 
 function loadPedidosOverrides() {
+  // Primero cargar locales extra
+  loadLocalesExtra();
+  // Luego aplicar overrides de panes
   const overrides = getPedidosOverride();
   locales.forEach(local => {
     if (overrides[local.id]) local.panes = overrides[local.id];
@@ -466,7 +546,7 @@ function renderAdminPedidos() {
   el.innerHTML = locales.map(local => `
     <div class="admin-card">
       <div class="admin-card-title" onclick="toggleAdminCard(this)">
-        <span>📍 ${local.nombre}</span>
+        <span>📍 ${local.nombre}${local._extra ? ' <small style="color:var(--hidra1);font-size:0.7rem">★ nuevo</small>' : ''}</span>
         <span class="chevron">▼</span>
       </div>
       <div class="admin-card-body">
@@ -480,12 +560,23 @@ function renderAdminPedidos() {
         </div>
         <button class="add-ing-btn" onclick="addPedidoItem('${local.id}')">+ Agregar ítem</button>
         ${notaEditorHTML(local.id)}
-        <div style="display:flex;gap:0.5rem;margin-top:1rem">
+        <div style="display:flex;gap:0.5rem;margin-top:1rem;flex-wrap:wrap">
           <button class="admin-save-btn" style="flex:1" onclick="guardarPedidoLocal('${local.id}')">💾 Guardar pedido</button>
           <button class="admin-save-btn" style="flex:1;background:var(--hidra2)" onclick="guardarNotaLocal('${local.id}')">📝 Guardar nota</button>
+          ${local._extra ? `<button class="del-btn" style="width:100%;margin-top:0.3rem;padding:0.5rem;border-radius:8px" onclick="eliminarLocal('${local.id}')">🗑 Eliminar este local</button>` : ''}
         </div>
       </div>
-    </div>`).join('');
+    </div>`).join('') + `
+
+    <!-- Formulario nuevo local -->
+    <div class="admin-new-receta" style="margin-top:0.8rem">
+      <h3>➕ Agregar nuevo local</h3>
+      <div class="admin-field">
+        <label>Nombre del local</label>
+        <input type="text" id="nuevo-local-nombre" placeholder="Ej: Local Centro" style="width:100%;padding:0.6rem 0.8rem;border:1px solid var(--arena);border-radius:8px;font-size:0.9rem;background:var(--crema)">
+      </div>
+      <button class="admin-save-btn" onclick="agregarLocal()">✓ Crear local</button>
+    </div>`;
 }
 
 function updatePedidoItem(localId, idx, campo, valor) {

@@ -1,6 +1,30 @@
 // ── Navegación con animación ──
 const TABS = ['inicio','recetas','calculadora','pedidos','mensaje','admin','empaquetados','carga-emp'];
 
+// Regenera el select de locales incluyendo los extras agregados desde el editor
+function actualizarSelectLocales() {
+  const sel = document.getElementById('localSelect');
+  if (!sel) return;
+  const valorActual = sel.value;
+
+  // Opciones fijas
+  sel.innerHTML = `
+    <option value="todos">— Todos los locales —</option>
+    <option value="totales">📊 Totales de producción</option>`;
+
+  // Agregar todos los locales del array (fijos + extras)
+  locales.forEach(local => {
+    const opt = document.createElement('option');
+    opt.value = local.id;
+    opt.textContent = local.nombre + (local._extra ? ' ★' : '');
+    sel.appendChild(opt);
+  });
+
+  // Restaurar selección si sigue siendo válida
+  const ids = ['todos','totales', ...locales.map(l => l.id)];
+  sel.value = ids.includes(valorActual) ? valorActual : 'todos';
+}
+
 function cambiarModo(modo) {
   TABS.forEach(tab => {
     const el = document.getElementById('tab-' + tab);
@@ -17,7 +41,10 @@ function cambiarModo(modo) {
   document.querySelectorAll('.nav-btn').forEach(b =>
     b.classList.toggle('active', b.dataset.tab === modo)
   );
-  if (modo === 'pedidos')      mostrarLocal(document.getElementById('localSelect').value);
+  if (modo === 'pedidos') {
+    actualizarSelectLocales();
+    mostrarLocal(document.getElementById('localSelect').value);
+  }
   if (modo === 'inicio')       renderInicio();
   if (modo === 'empaquetados') renderEmpaquetados();
   if (modo === 'carga-emp')    renderCargaEmp();

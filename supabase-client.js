@@ -15,6 +15,7 @@ const SYNC_KEYS = [
   'pedidos_mayoristas',
   'stock_panes',
   'empaquetados',
+  'locales_extra',
 ];
 
 // ── Subir un valor a Supabase ────────────────────────────────
@@ -58,6 +59,16 @@ function supaIniciarRealtime() {
 
         // Refrescar la UI según qué dato cambió
         const clave = row.clave;
+
+        if (clave === 'locales_extra') {
+          loadLocalesExtra();
+          const sel = document.getElementById('localSelect');
+          if (sel) mostrarLocal(sel.value);
+          if (document.getElementById('admin-pedidos') &&
+              document.getElementById('admin-pedidos').classList.contains('active')) {
+            renderAdminPedidos();
+          }
+        }
 
         if (clave === 'empaquetados') {
           const el = document.getElementById('tab-empaquetados');
